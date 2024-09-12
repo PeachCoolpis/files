@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+</head>
+<body>
+
+<form id="uploadForm" th:action="@{/upload}" method="post" enctype="multipart/form-data">
+    <input name="textValue" type="text" id="textValue">
+    <input name="file1" type="file" id="file1" multiple>
+    <input name="file2" type="file" id="file2" multiple>
+    <input type="submit" value="Upload">
+</form>
+
+</body>
+<script>
+    document.getElementById("uploadForm").addEventListener("submit", function(event) {
+        event.preventDefault(); // 기본 폼 제출 방지
+        
+        const formData = new FormData();
+        const textValue = document.getElementById("textValue").value;
+        const fileData1 = document.getElementById("file1").files;
+        const fileData2 = document.getElementById("file2").files;
+        
+        
+        
+        formData.append("textValue", textValue);  // "textValue"는 BaseVo의 필드명
+        
+        // file1의 파일들을 FormData에 추가
+        for (let i = 0; i < fileData1.length; i++) {
+            console.log("file1[" + i + "]:", fileData1[i]); // 파일이 제대로 선택되었는지 확인
+            formData.append("file1", fileData1[i]);
+        }
+        
+        // file2의 파일들을 FormData에 추가
+        for (let i = 0; i < fileData2.length; i++) {
+            console.log("file2[" + i + "]:", fileData2[i]); // 파일이 제대로 선택되었는지 확인
+            formData.append("file2", fileData2[i]);
+        }
+        
+        for (const [key, value] of formData) {
+            console.log( `${key}: ${value}\n`);
+        }
+        
+        // Fetch를 통해 서버로 전송
+        fetch("/upload", {
+            method: "POST",
+            body: formData
+        })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('파일 업로드 실패');
+                }
+                return response.text();
+            })
+            .then(data => {
+                console.log("파일 업로드 성공:", data);
+            })
+            .catch(error => {
+                console.error("업로드 중 오류 발생:", error);
+            });
+    });
+</script>
+</html>
